@@ -21,18 +21,20 @@ import requests
 from datetime import datetime
 from dateutil import relativedelta
 from glob import glob
-from chatgpt_wrapper import ChatGPT
 
 # 初始化 chatGPT
-bot = ChatGPT()
-
-def askGPT(inputSTR):
-    reply = ""
-    try:
-        reply = bot.ask(inputSTR)
-    except:
-        reply = False
-    return reply
+try:
+    from chatgpt_wrapper import ChatGPT
+    bot = ChatGPT()
+    def askGPT(inputSTR):
+        reply = ""
+        try:
+            reply = bot.ask(inputSTR)
+        except:
+            reply = False
+        return reply
+except:
+    print("您尚未安裝 chatGPT 的 api，請參考 README 的安裝步驟執行。")
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 
