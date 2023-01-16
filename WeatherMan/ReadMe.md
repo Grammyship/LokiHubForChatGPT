@@ -25,4 +25,22 @@
 	- API_KEY 填入你的 [Articut 金鑰](https://api.droidtown.co/member/)
 	- LOKI_KEY 填入你產生的`WeatherMan`專案金鑰
 
-6. 開始使用`WeatherMan`。
+6. 安裝 `chatgpt-wrapper`
+
+	```pip install git+https://github.com/mmabrouk/chatgpt-wrapper```
+	
+7. 安裝 `requirements.txt`
+
+	```pip install -r requirements.txt```
+	
+8. 在 `playwright` 中下載瀏覽器
+
+	```playwright install```
+	
+9. 設定 chatGPT
+
+	```chatGPT install```
+   
+   此時會打開 OpenAI 的登入/註冊頁面，登入帳戶至看到 chatgpt 的使用頁面後即可關閉瀏覽器
+
+10. 開始使用`WeatherMan`。
