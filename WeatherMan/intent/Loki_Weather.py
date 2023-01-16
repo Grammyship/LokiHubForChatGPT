@@ -21,6 +21,18 @@ import requests
 from datetime import datetime
 from dateutil import relativedelta
 from glob import glob
+from chatgpt_wrapper import ChatGPT
+
+# 初始化 chatGPT
+bot = ChatGPT()
+
+def askGPT(inputSTR):
+    reply = ""
+    try:
+        reply = bot.ask(inputSTR)
+    except:
+        reply = False
+    return reply
 
 BASEPATH = os.path.dirname(os.path.abspath(__file__))
 
@@ -103,22 +115,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}不{}?".format(args[0], args[1], args[2], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[1], value, args[2], args[2])))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -151,10 +169,16 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 70:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，不建議進行戶外活動。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，可以外出活動。\n".format(value)
+                            try:
+                                reply = ''.join(askGPT("{}{}{}下雨嗎?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}降雨機率 {} %。會下雨嗎?".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 70:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，不建議進行戶外活動。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，可以外出活動。\n".format(value)
                         except:
                             pass
                         break
@@ -187,10 +211,16 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 50:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。\n".format(value)
+                            try:
+                                reply = ''.join(askGPT("{}{}{}不用帶傘嗎?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}降雨機率 {} %。可以不用帶傘嗎?".format(args[0], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 50:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。\n".format(value)
                         except:
                             pass
                         break
@@ -223,10 +253,16 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 50:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。\n".format(value)
+                            try:
+                                reply = ''.join(askGPT("{}{}{}不用帶傘嗎?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}降雨機率 {} %。可以不用帶傘嗎?".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except: 
+                                if value >= 50:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。\n".format(value)
                         except:
                             pass
                         break
@@ -259,10 +295,16 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 50:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。\n".format(value)
+                            try:
+                                reply = ''.join(askGPT("{}{}需不{}要帶傘?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}降雨機率 {} %。需要帶傘嗎?".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 50:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。\n".format(value)
                         except:
                             pass
                         break
@@ -296,12 +338,18 @@ def getResult(inputSTR, utterance, args, resultDICT):
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             try:
                                 value = int(elementTime["elementValue"][0]["value"])
-                                if value >= 7:
-                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，建議做好防曬保護。\n".format(value, elementTime["elementValue"][1]["value"])
-                                elif value >= 5:
-                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，中午陽光強烈時應該是需要的。\n".format(value, elementTime["elementValue"][1]["value"])
-                                else:
-                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，屬弱紫外線輻射天氣，無需特別防護。若長期在戶外，建議塗擦SPF在8-12之間的防曬護膚品。\n".format(value, elementTime["elementValue"][1]["value"])
+                                try:
+                                    reply = ''.join(askGPT("{}{}需不{}要帶{}?".format(args[0], args[1], args[2], args[3])))
+                                    resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                    reply = ''.join(askGPT("今天{}紫外線指數 {}，{}曝曬指數。需要防曬嗎?".format(args[1], value, elementTime["elementValue"][1]["value"])))
+                                    resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                except:
+                                    if value >= 7:
+                                        resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，建議做好防曬保護。\n".format(value, elementTime["elementValue"][1]["value"])
+                                    elif value >= 5:
+                                        resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，中午陽光強烈時應該是需要的。\n".format(value, elementTime["elementValue"][1]["value"])
+                                    else:
+                                        resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，屬弱紫外線輻射天氣，無需特別防護。若長期在戶外，建議塗擦SPF在8-12之間的防曬護膚品。\n".format(value, elementTime["elementValue"][1]["value"])
                             except:
                                 pass
                             break
@@ -318,16 +366,16 @@ def getResult(inputSTR, utterance, args, resultDICT):
                 elif queryDatetime == latestTime:
                     resultDICT[inputSTR]["answer"] = "天有不測風雲，我沒辦法預測太久以後的天氣。\n"
 
-    if utterance == "[今天][台北][中午]過[後]天氣如何":
-        forecastDICT = getCityForecastDict(args[1])
-        queryDatetime = convertDatetime2ForecastFMT(args[0]+args[2])
-        for weatherElement in forecastDICT["weatherElement"]:
-            if weatherElement["elementName"] == "WeatherDescription":
-                for elementTime in weatherElement["time"]:
-                    if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
-                        #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                        resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
-                        break
+    # outdated
+    #if utterance == "[今天][台北][中午]過[後]天氣如何":
+        #forecastDICT = getCityForecastDict(args[1])
+        #queryDatetime = convertDatetime2ForecastFMT(args[0]+args[2])
+        #for weatherElement in forecastDICT["weatherElement"]:
+            #if weatherElement["elementName"] == "WeatherDescription":
+                #for elementTime in weatherElement["time"]:
+                    #if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
+                        ##resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
+                        #resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
 
     if utterance == "[後天晚上][台北][適合]慢跑嗎":
         forecastDICT = getCityForecastDict(args[1])
@@ -338,33 +386,48 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     #if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
                         #break
-            if weatherElement["elementName"] == "PoP12h":
+            if weatherElement["elementName"] == "WeatherDescription":
                 for elementTime in weatherElement["time"]:
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
+                        #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
+                        value = elementTime["elementValue"][0]["value"]
                         try:
-                            value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 70:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，不建議進行戶外活動。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，可以外出活動。\n".format(value)
+                            reply = ''.join(askGPT("{}{}{}慢跑嗎?".format(args[0], args[1], args[2])))
+                            resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                            reply = ''.join(askGPT("今天{}天氣：{}\n這種天氣適合慢跑嗎？".format(args[1], value)))
+                            resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                         except:
-                            pass
-                        break
-
-            if weatherElement["elementName"] == "UVI":
-                for elementTime in weatherElement["time"]:
-                    if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
-                        try:
-                            value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 7:
-                                resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，若要外出請注意防曬及補充水分。\n".format(value, elementTime["elementValue"][1]["value"])
-                            elif value >= 5:
-                                resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，請穿戴衣帽以保護皮膚並在中午陽光強烈時尋找遮蔽處。\n".format(value, elementTime["elementValue"][1]["value"])
-                            else:
-                                resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，屬弱紫外線輻射天氣，無需特別防護。若長期在戶外，建議塗擦SPF在8-12之間的防曬護膚品。\n".format(value, elementTime["elementValue"][1]["value"])
-                        except:
-                            pass
-                        break
+                            break
+                            
+        if resultDICT[inputSTR]["answer"] == None:
+            for weatherElement in forecastDICT["weatherElement"]:
+                if weatherElement["elementName"] == "PoP12h":
+                    for elementTime in weatherElement["time"]:
+                        if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
+                            try:
+                                value = int(elementTime["elementValue"][0]["value"])
+                                if value >= 70:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，不建議進行戶外活動。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，可以外出活動。\n".format(value)
+                            except:
+                                pass
+                            break
+        
+                if weatherElement["elementName"] == "UVI":
+                    for elementTime in weatherElement["time"]:
+                        if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
+                            try:
+                                value = int(elementTime["elementValue"][0]["value"])
+                                if value >= 7:
+                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，若要外出請注意防曬及補充水分。\n".format(value, elementTime["elementValue"][1]["value"])
+                                elif value >= 5:
+                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，請穿戴衣帽以保護皮膚並在中午陽光強烈時尋找遮蔽處。\n".format(value, elementTime["elementValue"][1]["value"])
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，屬弱紫外線輻射天氣，無需特別防護。若長期在戶外，建議塗擦SPF在8-12之間的防曬護膚品。\n".format(value, elementTime["elementValue"][1]["value"])
+                            except:
+                                pass
+                            break
 
     if utterance == "[今天][台北][中午]過[後][天氣]如何":
         forecastDICT = getCityForecastDict(args[1])
@@ -375,8 +438,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
-                            break
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}過{}{}如何?".format(args[0], args[1], args[2], args[3], args[4])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
 
     if utterance == "[今天][台北][午後][天氣]如何":
         forecastDICT = getCityForecastDict(args[1])
@@ -387,8 +456,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
-                            break
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}{}如何?".format(args[0], args[1], args[2], args[3])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
 
     if utterance == "[今天][台北][很熱]嗎":
         forecastDICT = getCityForecastDict(args[1])
@@ -403,22 +478,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}嗎?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣如何?".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -438,22 +519,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}{}嗎?".format(args[0], args[1], args[2], args[3])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣如何?".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -485,22 +572,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}{}嗎?".format(args[0], args[1], args[2], args[3])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[1], value, args[3], args[3])))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -532,22 +625,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}嗎?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[1], value, args[3], args[3])))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -579,22 +678,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}是不{}{}?".format(args[0], args[1], args[2], args[3])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣如何?".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -626,22 +731,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}嗎?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}嗎?".format(args[0], value, args[2])))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -674,22 +785,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}{}嗎?".format(args[0], args[1], args[2], args[3])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}嗎?".format(args[0], value, args[3])))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -720,22 +837,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}{}嗎?".format(args[0], args[1], args[2], args[3])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[0], value, args[3], args[3])))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -767,22 +890,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}嗎?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[0], value, args[2], args[2])))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -814,22 +943,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[3] or "涼" in args[3]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}是不{}{}?".format(args[0], args[1], args[2], args[3])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}嗎?".format(args[0], value, args[3])))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[3] or "涼" in args[3]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -873,10 +1008,16 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 50:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，蠻有可能會下雨的，建議您攜帶雨具。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，降雨機率較低，若短時間外出可以不帶傘。\n".format(value)
+                            try:
+                                reply = ''.join(askGPT("{}{}會不{}下雨?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}降雨機率 {} %。會下雨嗎?".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 50:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，蠻有可能會下雨的，建議您攜帶雨具。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，降雨機率較低，若短時間外出可以不帶傘。\n".format(value)
                         except:
                             pass
                         break
@@ -908,8 +1049,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
-                            break
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}過{}{}{}如何?".format(args[0], args[1], args[2], args[3])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[2], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
 
     if utterance == "[今天午後][台北][天氣]如何":
         forecastDICT = getCityForecastDict(args[1])
@@ -920,8 +1067,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
-                            break
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}如何?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
 
     if utterance == "[今天晚上][氣溫]如何":
         resultDICT[inputSTR]["answer"] = "我不知道您在哪裡，所以沒辦法告訴您相關的天氣資訊。\n"
@@ -931,21 +1084,26 @@ def getResult(inputSTR, utterance, args, resultDICT):
         queryDatetime = convertDatetime2ForecastFMT(args[0])
         earliestTime = queryDatetime
         latestTime = queryDatetime
-        print(queryDatetime)
         for weatherElement in forecastDICT["weatherElement"]:
             if weatherElement["elementName"] == "MaxAT":
                 for elementTime in weatherElement["time"]:
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "至 {} 度，最高溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "至 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "至 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "至 {} 度，氣溫稍有寒意。\n".format(value)
+                            try:
+                                reply = ''.join(askGPT("{}{}{}{}?".format(args[0], args[1], args[2], args[3])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}體感溫度攝氏 {} 度。這樣的天氣如何?".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "至 {} 度，最高溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "至 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "至 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "至 {} 度，氣溫稍有寒意。\n".format(value)
                         except:
                             pass
                         break
@@ -991,10 +1149,16 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 70:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議您攜帶雨具。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。\n".format(value)
+                            try:
+                                reply = ''.join(askGPT("{}{}{}下雨嗎?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}降雨機率 {} %。會下雨嗎?".format(args[0], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 70:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議您攜帶雨具。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。\n".format(value)
                         except:
                             pass
                         break
@@ -1026,22 +1190,28 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             break
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 31:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2] or "涼" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
-                            elif value >= 27:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
-                            elif value >= 20:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
-                                if "熱" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
-                                elif "冷" in args[2] or "涼" in args[2]:
-                                    resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}不{}?".format(args[0], args[1], args[2], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[0], value, args[2], args[2])))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 31:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2] or "涼" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會冷，但非常熱。\n" + resultDICT[inputSTR]["answer"]
+                                elif value >= 27:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為悶熱。\n".format(value)
+                                elif value >= 20:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫較為舒適。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫稍有寒意。\n".format(value)
+                                    if "熱" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "不會熱。\n" + resultDICT[inputSTR]["answer"]
+                                    elif "冷" in args[2] or "涼" in args[2]:
+                                        resultDICT[inputSTR]["answer"] = "會冷，若要外出建議穿著外套。\n" + resultDICT[inputSTR]["answer"]
                         except:
                             pass
                         break
@@ -1069,10 +1239,16 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 70:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議您攜帶雨具。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。\n".format(value)
+                            try:
+                                reply = ''.join(askGPT("{}{}會不{}下雨?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}降雨機率 {} %。會下雨嗎?".format(args[0], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 70:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議您攜帶雨具。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。\n".format(value)
                         except:
                             pass
                         break
@@ -1106,12 +1282,18 @@ def getResult(inputSTR, utterance, args, resultDICT):
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             try:
                                 value = int(elementTime["elementValue"][0]["value"])
-                                if value >= 7:
-                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，建議做好防曬保護。\n".format(value, elementTime["elementValue"][1]["value"])
-                                elif value >= 5:
-                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，中午陽光強烈時應該是需要的。\n".format(value, elementTime["elementValue"][1]["value"])
-                                else:
-                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，屬弱紫外線輻射天氣，無需特別防護。若長期在戶外，建議塗擦SPF在8-12之間的防曬護膚品。\n".format(value, elementTime["elementValue"][1]["value"])
+                                try:
+                                    reply = ''.join(askGPT("{}{}需不{}要帶{}?".format(args[0], args[1], args[2], args[3])))
+                                    resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                    reply = ''.join(askGPT("今天{}紫外線指數 {}，{}曝曬指數。需要防曬嗎?".format(args[1], value, elementTime["elementValue"][1]["value"])))
+                                    resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                except:
+                                    if value >= 7:
+                                        resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，建議做好防曬保護。\n".format(value, elementTime["elementValue"][1]["value"])
+                                    elif value >= 5:
+                                        resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，中午陽光強烈時應該是需要的。\n".format(value, elementTime["elementValue"][1]["value"])
+                                    else:
+                                        resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，屬弱紫外線輻射天氣，無需特別防護。若長期在戶外，建議塗擦SPF在8-12之間的防曬護膚品。\n".format(value, elementTime["elementValue"][1]["value"])
                             except:
                                 pass
                             break
@@ -1139,10 +1321,16 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 50:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。。\n".format(value)
+                            try:
+                                reply = ''.join(askGPT("{}{}需不{}要帶傘?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}降雨機率 {} %。需要帶傘嗎?".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 50:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。。\n".format(value)
                         except:
                             pass
                         break
@@ -1168,8 +1356,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
-                            break
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}{}過{}{}如何?".format(args[0], args[1], args[2], args[3])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
 
     if utterance == "[台北][今天午後][天氣]如何":
         forecastDICT = getCityForecastDict(args[0])
@@ -1180,8 +1374,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
-                            break
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}如何?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
 
     if utterance == "[台北][天氣]":
         forecastDICT = getCityForecastDict(args[0])
@@ -1192,8 +1392,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
-                            break
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}{}?".format(args[0], args[1])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
                         
     if utterance == "[台北][天氣]如何":
         forecastDICT = getCityForecastDict(args[0])
@@ -1204,8 +1410,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
-                            break
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}{}如何?".format(args[0], args[1])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
 
     if utterance == "[台北][天氣]怎麼樣":
         forecastDICT = getCityForecastDict(args[0])
@@ -1216,8 +1428,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
-                            break
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}{}怎麼樣?".format(args[0], args[1])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
 
     if utterance == "[台北][後天晚上][適合]慢跑嗎":
         forecastDICT = getCityForecastDict(args[0])
@@ -1228,33 +1446,48 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     #if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
                         #break
-            if weatherElement["elementName"] == "PoP12h":
+            if weatherElement["elementName"] == "WeatherDescription":
                 for elementTime in weatherElement["time"]:
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
+                        #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
+                        value = elementTime["elementValue"][0]["value"]
                         try:
-                            value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 70:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，不建議進行戶外活動。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，可以外出活動。\n".format(value)
+                            reply = ''.join(askGPT("{}{}{}慢跑嗎?".format(args[0], args[1], args[2])))
+                            resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                            reply = ''.join(askGPT("今天{}天氣：{}\n這種天氣適合慢跑嗎？".format(args[1], value)))
+                            resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                         except:
-                            pass
-                        break
-
-            if weatherElement["elementName"] == "UVI":
-                for elementTime in weatherElement["time"]:
-                    if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
-                        try:
-                            value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 7:
-                                resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，若要外出請注意防曬及補充水分。\n".format(value, elementTime["elementValue"][1]["value"])
-                            elif value >= 5:
-                                resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，請穿戴衣帽以保護皮膚並在中午陽光強烈時尋找遮蔽處。\n".format(value, elementTime["elementValue"][1]["value"])
-                            else:
-                                resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，屬弱紫外線輻射天氣，無需特別防護。若長期在戶外，建議塗擦SPF在8-12之間的防曬護膚品。\n".format(value, elementTime["elementValue"][1]["value"])
-                        except:
-                            pass
-                        break
+                            break
+                            
+        if resultDICT[inputSTR]["answer"] == None:
+            for weatherElement in forecastDICT["weatherElement"]:
+                if weatherElement["elementName"] == "PoP12h":
+                    for elementTime in weatherElement["time"]:
+                        if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
+                            try:
+                                value = int(elementTime["elementValue"][0]["value"])
+                                if value >= 70:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，不建議進行戶外活動。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，可以外出活動。\n".format(value)
+                            except:
+                                pass
+                            break
+        
+                if weatherElement["elementName"] == "UVI":
+                    for elementTime in weatherElement["time"]:
+                        if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
+                            try:
+                                value = int(elementTime["elementValue"][0]["value"])
+                                if value >= 7:
+                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，若要外出請注意防曬及補充水分。\n".format(value, elementTime["elementValue"][1]["value"])
+                                elif value >= 5:
+                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，請穿戴衣帽以保護皮膚並在中午陽光強烈時尋找遮蔽處。\n".format(value, elementTime["elementValue"][1]["value"])
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，屬弱紫外線輻射天氣，無需特別防護。若長期在戶外，建議塗擦SPF在8-12之間的防曬護膚品。\n".format(value, elementTime["elementValue"][1]["value"])
+                            except:
+                                pass
+                            break
 
     if utterance == "[台北][明天][天氣]":
         forecastDICT = getCityForecastDict(args[0])
@@ -1267,7 +1500,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}?".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
                             break
 
                         else:
@@ -1298,10 +1538,16 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 70:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。。\n".format(value)
+                            try:
+                                reply = ''.join(askGPT("{}{}下雨嗎?".format(args[0], args[1])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}降雨機率 {} %。需要帶傘嗎?".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 70:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，若短時間外出可以不帶傘。。\n".format(value)
                         except:
                             pass
                         break
@@ -1334,10 +1580,16 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                         try:
                             value = int(elementTime["elementValue"][0]["value"])
-                            if value >= 70:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
-                            else:
-                                resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，不一定會下雨，若短時間外出可以不帶傘。。\n".format(value)
+                            try:
+                                reply = ''.join(askGPT("{}{}要帶傘嗎?".format(args[0], args[1])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" +reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}降雨機率 {} %。需要帶傘嗎?".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                if value >= 70:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
+                                else:
+                                    resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，不一定會下雨，若短時間外出可以不帶傘。。\n".format(value)
                         except:
                             pass
                         break
@@ -1363,7 +1615,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}{}報告".format(args[0], args[1])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
                             break
 
     if utterance == "[明天][台北][天氣]":
@@ -1377,7 +1636,14 @@ def getResult(inputSTR, utterance, args, resultDICT):
                     for elementTime in weatherElement["time"]:
                         if queryDatetime >= elementTime["startTime"] and queryDatetime <= elementTime["endTime"]:
                             #resultDICT[inputSTR]["WeatherDescription"] = elementTime["elementValue"][0]["value"]
-                            resultDICT[inputSTR]["answer"] = elementTime["elementValue"][0]["value"]
+                            value = elementTime["elementValue"][0]["value"]
+                            try:
+                                reply = ''.join(askGPT("{}{}{}".format(args[0], args[1], args[2])))
+                                resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
+                                reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[1], value)))
+                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            except:
+                                resultDICT[inputSTR]["answer"] = value
                             break
 
                         else:
