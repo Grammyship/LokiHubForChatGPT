@@ -33,6 +33,9 @@ try:
         except:
             reply = False
         return reply
+    
+    # 使用繁體中文回答
+    testChinese = askGPT("接下來的對話請使用繁體中文")
 except:
     print("您尚未安裝 chatGPT 的 api，請參考 README 的安裝步驟執行。")
 
@@ -121,7 +124,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}不{}?".format(args[0], args[1], args[2], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[1], value, args[2], args[2])))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -175,7 +178,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}下雨嗎?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}降雨機率 {} %。會下雨嗎?".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 70:
                                     resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，不建議進行戶外活動。\n".format(value)
@@ -217,7 +220,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}不用帶傘嗎?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}降雨機率 {} %。可以不用帶傘嗎?".format(args[0], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 50:
                                     resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
@@ -259,7 +262,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}不用帶傘嗎?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}降雨機率 {} %。可以不用帶傘嗎?".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except: 
                                 if value >= 50:
                                     resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
@@ -301,7 +304,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}需不{}要帶傘?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}降雨機率 {} %。需要帶傘嗎?".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 50:
                                     resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
@@ -344,7 +347,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                     reply = ''.join(askGPT("{}{}需不{}要帶{}?".format(args[0], args[1], args[2], args[3])))
                                     resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                     reply = ''.join(askGPT("今天{}紫外線指數 {}，{}曝曬指數。需要防曬嗎?".format(args[1], value, elementTime["elementValue"][1]["value"])))
-                                    resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                    resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                                 except:
                                     if value >= 7:
                                         resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，建議做好防曬保護。\n".format(value, elementTime["elementValue"][1]["value"])
@@ -397,7 +400,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             reply = ''.join(askGPT("{}{}{}慢跑嗎?".format(args[0], args[1], args[2])))
                             resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                             reply = ''.join(askGPT("今天{}天氣：{}\n這種天氣適合慢跑嗎？".format(args[1], value)))
-                            resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                         except:
                             break
                             
@@ -445,7 +448,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}過{}{}如何?".format(args[0], args[1], args[2], args[3], args[4])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
 
@@ -463,7 +466,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}{}如何?".format(args[0], args[1], args[2], args[3])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
 
@@ -484,7 +487,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}嗎?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣如何?".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -525,7 +528,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}{}嗎?".format(args[0], args[1], args[2], args[3])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣如何?".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -578,7 +581,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}{}嗎?".format(args[0], args[1], args[2], args[3])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[1], value, args[3], args[3])))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -631,7 +634,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}嗎?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[1], value, args[3], args[3])))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -684,7 +687,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}是不{}{}?".format(args[0], args[1], args[2], args[3])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣如何?".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -737,7 +740,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}嗎?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}嗎?".format(args[0], value, args[2])))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -791,7 +794,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}{}嗎?".format(args[0], args[1], args[2], args[3])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}嗎?".format(args[0], value, args[3])))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -843,7 +846,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}{}嗎?".format(args[0], args[1], args[2], args[3])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[0], value, args[3], args[3])))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -896,7 +899,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}嗎?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[0], value, args[2], args[2])))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -949,7 +952,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}是不{}{}?".format(args[0], args[1], args[2], args[3])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}嗎?".format(args[0], value, args[3])))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -1014,7 +1017,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}會不{}下雨?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}降雨機率 {} %。會下雨嗎?".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 50:
                                     resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，蠻有可能會下雨的，建議您攜帶雨具。\n".format(value)
@@ -1056,7 +1059,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}過{}{}{}如何?".format(args[0], args[1], args[2], args[3])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[2], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
 
@@ -1074,7 +1077,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}如何?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
 
@@ -1096,7 +1099,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}{}?".format(args[0], args[1], args[2], args[3])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}體感溫度攝氏 {} 度。這樣的天氣如何?".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "至 {} 度，最高溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -1155,7 +1158,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}下雨嗎?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}降雨機率 {} %。會下雨嗎?".format(args[0], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 70:
                                     resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議您攜帶雨具。\n".format(value)
@@ -1196,7 +1199,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}不{}?".format(args[0], args[1], args[2], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}攝氏 {} 度。這樣的天氣{}不{}?".format(args[0], value, args[2], args[2])))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 31:
                                     resultDICT[inputSTR]["answer"] += "平均露點溫度為攝氏 {} 度，氣溫非常悶熱，容易中暑，請盡量補充水份。\n".format(value)
@@ -1245,7 +1248,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}會不{}下雨?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}降雨機率 {} %。會下雨嗎?".format(args[0], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 70:
                                     resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議您攜帶雨具。\n".format(value)
@@ -1288,7 +1291,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                     reply = ''.join(askGPT("{}{}需不{}要帶{}?".format(args[0], args[1], args[2], args[3])))
                                     resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                     reply = ''.join(askGPT("今天{}紫外線指數 {}，{}曝曬指數。需要防曬嗎?".format(args[1], value, elementTime["elementValue"][1]["value"])))
-                                    resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                    resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                                 except:
                                     if value >= 7:
                                         resultDICT[inputSTR]["answer"] += "紫外線指數 {}，{} 曝曬級數，建議做好防曬保護。\n".format(value, elementTime["elementValue"][1]["value"])
@@ -1327,7 +1330,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}需不{}要帶傘?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}降雨機率 {} %。需要帶傘嗎?".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 50:
                                     resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。。\n".format(value)
@@ -1363,7 +1366,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}過{}{}如何?".format(args[0], args[1], args[2], args[3])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
 
@@ -1381,7 +1384,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}如何?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
 
@@ -1399,7 +1402,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}?".format(args[0], args[1])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
                         
@@ -1417,7 +1420,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}如何?".format(args[0], args[1])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
 
@@ -1435,7 +1438,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}怎麼樣?".format(args[0], args[1])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
 
@@ -1457,7 +1460,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                             reply = ''.join(askGPT("{}{}{}慢跑嗎?".format(args[0], args[1], args[2])))
                             resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                             reply = ''.join(askGPT("今天{}天氣：{}\n這種天氣適合慢跑嗎？".format(args[1], value)))
-                            resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                            resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                         except:
                             break
                             
@@ -1507,7 +1510,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}?".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
                             break
@@ -1544,7 +1547,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}下雨嗎?".format(args[0], args[1])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}降雨機率 {} %。需要帶傘嗎?".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 70:
                                     resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
@@ -1586,7 +1589,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}要帶傘嗎?".format(args[0], args[1])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" +reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}降雨機率 {} %。需要帶傘嗎?".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 if value >= 70:
                                     resultDICT[inputSTR]["answer"] += "有 {}% 機率降雨，建議攜帶雨具。\n".format(value)
@@ -1622,7 +1625,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}報告".format(args[0], args[1])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[0], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
                             break
@@ -1643,7 +1646,7 @@ def getResult(inputSTR, utterance, args, resultDICT):
                                 reply = ''.join(askGPT("{}{}{}".format(args[0], args[1], args[2])))
                                 resultDICT[inputSTR]["answer"] = "[No Loki]:\n" + reply + "\n-- by chatGPT."
                                 reply = ''.join(askGPT("今天{}天氣：{}\n有什麼建議嗎？".format(args[1], value)))
-                                resultDICT[inputSTR]["answer"] += "\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
+                                resultDICT[inputSTR]["answer"] += "\n\n[With Loki]:\n" + reply + "\n-- by Loki + chatGPT."
                             except:
                                 resultDICT[inputSTR]["answer"] = value
                             break
