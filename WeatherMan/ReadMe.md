@@ -39,7 +39,7 @@
 	
 9. 設定 chatGPT
 
-	```chatGPT install```
+	```chatgpt install```
    
    此時會打開 OpenAI 的登入/註冊頁面，登入帳戶至看到 chatgpt 的使用頁面後即可關閉瀏覽器
 
